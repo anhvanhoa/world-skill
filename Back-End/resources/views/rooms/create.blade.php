@@ -61,28 +61,50 @@
 
                 <div class="mb-3 pt-3 pb-2">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                        <h2 class="h4">Tạo kênh mới</h2>
+                        <h2 class="h4">Tạo phòng mới</h2>
                     </div>
                 </div>
 
-                <form class="needs-validation" novalidate action="{{route('create-channel', $event->id)}}" method="post">
+                <form class="needs-validation" novalidate action="{{route('create-room')}}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="inputName">Tên</label>
                             <!-- adding the class is-invalid to the input, shows the invalid feedback below -->
                             <input type="text" class="form-control @error('name') is-invalid @enderror" id="inputName" name="name" placeholder="" value="">
-                            @error("name")
+                            @error('name')
                             <div class="invalid-feedback">
-                                Tên không được để trống.
+                                {{$message}}
                             </div>
                             @enderror
                         </div>
-                        <input type="hidden" name="slug" value="{{$event->slug}}">
                     </div>
 
+                    <div class="row">
+                        <div class="col-12 col-lg-4 mb-3">
+                            <label for="selectChannel">Kênh</label>
+                            <select class="form-control" id="selectChannel" name="channel">
+                                @foreach($channels as $channel)
+                                <option value="{{$channel->id}}">{{$channel->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-lg-4 mb-3">
+                            <label for="inputCapacity">Công suất</label>
+                            <input type="number" class="form-control @error('capacity') is-invalid @enderror" id="inputCapacity" name="capacity" placeholder="" value="">
+                            @error('capacity')
+                            <div class="invalid-feedback">
+                                {{$message}}
+                            </div>
+                            @enderror
+                        </div>
+                    </div>
+                    <input type="hidden" name="slug" value="{{$event->slug}}">
                     <hr class="mb-4">
-                    <button class="btn btn-primary" type="submit">Lưu kênh</button>
+                    <button class="btn btn-primary" type="submit">Lưu phòng</button>
                     <a href="events/detail.html" class="btn btn-link">Bỏ qua</a>
                 </form>
 

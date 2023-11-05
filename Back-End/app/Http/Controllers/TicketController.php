@@ -40,6 +40,6 @@ class TicketController extends Controller
         $ticket->event_id = $id;
         $ticket->special_validity = $special_validity;
         $ticket->save();
-        return redirect()->route('detail-event', $request->slug);
+        return redirect()->route('detail-event', $request->slug)->with('success', 'Vé được tạo thành công');
     }
 }

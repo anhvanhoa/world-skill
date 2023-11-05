@@ -52,6 +52,9 @@
             </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                @if(Session::has('success'))
+                <div class="alert alert-success mt-4">{{ Session::get('success') }}</div>
+                @endif
                 <div class="border-bottom mb-3 pt-3 pb-2 event-title">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                         <h1 class="h2">{{ $event->name }}</h1>
@@ -85,51 +88,25 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{$ticket->name}}</h5>
                                 <p class="card-text">{{ ceil($ticket->cost) }} -</p>
-                                @if($ticket->special_validity)
-                                <p class="card-text">{{$ticket->special_validity}}</p>
-                                @else
+                                @if(!$ticket->special_validity)
                                 <p class="card-text">&nbsp;</p>
+                                @elseif(isset(json_decode($ticket->special_validity)->date))
+                                <p class="card-text">Sẵn có cho đến {{date_format(date_create(json_decode($ticket->special_validity)->date), 'F d, Y')}}</p>
+                                @else
+                                <p class="card-text">{{json_decode($ticket->special_validity)->amount}} vé sẵn có</p>
                                 @endif
                             </div>
                         </div>
                     </div>
                     @endforeach
-                    <!-- <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Thường</h5>
-                                <p class="card-text">200.-</p>
-                                <p class="card-text">&nbsp;</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Đặt sớm</h5>
-                                <p class="card-text">120.-</p>
-                                <p class="card-text">Sẵn có cho đến June 1, 2019</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">VIP</h5>
-                                <p class="card-text">400.-</p>
-                                <p class="card-text">100 vé sẵn có</p>
-                            </div>
-                        </div>
-                    </div> -->
                 </div>
-
                 <!-- Sessions -->
                 <div id="sessions" class="mb-3 pt-3 pb-2">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                         <h2 class="h4">Phiên</h2>
                         <div class="btn-toolbar mb-2 mb-md-0">
                             <div class="btn-group mr-2">
-                                <a href="{{ route('create-session', $event->slug) }}" class="btn btn-sm btn-outline-secondary">
+                                <a href="{{ route('session', $event->slug) }}" class="btn btn-sm btn-outline-secondary">
                                     Tạo phiên mới
                                 </a>
                             </div>
@@ -149,27 +126,15 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($sessions as $session)
                             <tr>
-                                <td class="text-nowrap">08:30 - 10:00</td>
-                                <td>Talk</td>
-                                <td><a href="sessions/edit.html">Chủ đạo</a></td>
-                                <td class="text-nowrap">Một người quan trọng</td>
-                                <td class="text-nowrap">Chính / Phòng A</td>
+                                <td class="text-nowrap">{{date_format(date_create($session->start), "h:i")}} - {{date_format(date_create($session->end), "h:i")}}</td>
+                                <td>{{$session->type}}</td>
+                                <td><a href="{{route('edit-session', [$session->session_id, $event->slug])}}">{{$session->title}}</a></td>
+                                <td class="text-nowrap">{{$session->speaker}}</td>
+                                <td class="text-nowrap">{{$session->name}} / {{$session->name_room}}</td>
                             </tr>
-                            <tr>
-                                <td class="text-nowrap">10:15 - 11:00</td>
-                                <td>Talk</td>
-                                <td><a href="sessions/edit.html">X có gì mới?</a></td>
-                                <td class="text-nowrap">Người khác</td>
-                                <td class="text-nowrap">Chính / Phòng A</td>
-                            </tr>
-                            <tr>
-                                <td class="text-nowrap">10:15 - 11:00</td>
-                                <td>Workshop</td>
-                                <td><a href="sessions/edit.html">Thực hành với Y</a></td>
-                                <td class="text-nowrap">Người khác</td>
-                                <td class="text-nowrap">Phụ / Phòng C</td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -180,7 +145,7 @@
                         <h2 class="h4">Kênh</h2>
                         <div class="btn-toolbar mb-2 mb-md-0">
                             <div class="btn-group mr-2">
-                                <a href="channels/create.html" class="btn btn-sm btn-outline-secondary">
+                                <a href="{{ route('channel', $event->slug) }}" class="btn btn-sm btn-outline-secondary">
                                     Tạo kênh mới
                                 </a>
                             </div>
@@ -189,22 +154,16 @@
                 </div>
 
                 <div class="row channels">
+                    @foreach($channels as $channel)
                     <div class="col-md-4">
                         <div class="card mb-4 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Chính</h5>
-                                <p class="card-text">3 Phiên, 1 phòng</p>
+                                <h5 class="card-title">{{$channel->name}}</h5>
+                                <p class="card-text">{{$channel->count_session}} Phiên, {{$channel->count_room}} phòng</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Phụ</h5>
-                                <p class="card-text">15 phiên, 2 phòng</p>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
 
                 <!-- Rooms -->
@@ -213,7 +172,7 @@
                         <h2 class="h4">Phòng</h2>
                         <div class="btn-toolbar mb-2 mb-md-0">
                             <div class="btn-group mr-2">
-                                <a href="rooms/create.html" class="btn btn-sm btn-outline-secondary">
+                                <a href="{{route('room', $event->slug)}}" class="btn btn-sm btn-outline-secondary">
                                     Tạo phòng mới
                                 </a>
                             </div>
@@ -230,22 +189,12 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($rooms as $room)
                             <tr>
-                                <td>Phòng A</td>
-                                <td>1,000</td>
+                                <td>{{$room->name}}</td>
+                                <td>{{$room->capacity}}</td>
                             </tr>
-                            <tr>
-                                <td>Phòng B</td>
-                                <td>100</td>
-                            </tr>
-                            <tr>
-                                <td>Phòng C</td>
-                                <td>100</td>
-                            </tr>
-                            <tr>
-                                <td>Phòng D</td>
-                                <td>250</td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

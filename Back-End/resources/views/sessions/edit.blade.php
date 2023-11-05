@@ -9,7 +9,7 @@
 
     <title>Event Backend</title>
 
-    <base href="{{ asset('') }}">
+    <base href="{{asset('')}}">
     <!-- Bootstrap core CSS -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <!-- Custom styles -->
@@ -19,10 +19,10 @@
 <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="events/index.html">Nền tảng sự kiện</a>
-        <span class="navbar-organizer w-100">{{ session()->get('user')['name'] }}</span>
+        <span class="navbar-organizer w-100">{{session()->get('user')['name']}}</span>
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
-                <a class="nav-link" id="logout" href="{{ route('logout') }}">Đăng xuất</a>
+                <a class="nav-link" id="logout" href="{{route('logout')}}">Đăng xuất</a>
             </li>
         </ul>
     </nav>
@@ -52,9 +52,6 @@
             </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-                @if(Session::has("error"))
-                <div class="alert alert-danger mt-4">{{Session::get("error")}}</div>
-                @endif
                 <div class="border-bottom mb-3 pt-3 pb-2">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                         <h1 class="h2">{{$event->name}}</h1>
@@ -68,13 +65,15 @@
                     </div>
                 </div>
 
-                <form class="needs-validation" novalidate action="{{ route('create-session') }}" method="post">
+                <form class="needs-validation" novalidate action="{{route('update-session', $session->id)}}" method="post">
                     @csrf
+                    {{method_field('put')}}
                     <div class="row">
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="selectType">Loại</label>
                             <select class="form-control" id="selectType" name="type">
-                                <option value="talk" selected>Talk</option>
+                                <option value="{{$session->type}}" selected hidden>{{$session->type}}</option>
+                                <option value="talk">Talk</option>
                                 <option value="workshop">Workshop</option>
                             </select>
                         </div>
@@ -84,7 +83,7 @@
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="inputTitle">Tiêu đề</label>
                             <!-- adding the class is-invalid to the input, shows the invalid feedback below -->
-                            <input type="text" class="form-control @error('title') is-invalid @enderror" id="inputTitle" name="title" placeholder="" value="">
+                            <input type="text" class="form-control @error('title') is-invalid @enderror" id="inputTitle" name="title" placeholder="" value="{{$session->title}}">
                             @error("title")
                             <div class="invalid-feedback">
                                 {{$message}}
@@ -96,7 +95,7 @@
                     <div class="row">
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="inputSpeaker">Người trình bày</label>
-                            <input type="text" class="form-control  @error('speaker') is-invalid @enderror" id="inputSpeaker" name="speaker" placeholder="" value="">
+                            <input type="text" class="form-control  @error('speaker') is-invalid @enderror" id="inputSpeaker" name="speaker" placeholder="" value="{{$session->speaker}}">
                             @error("speaker")
                             <div class="invalid-feedback">
                                 {{$message}}
@@ -110,7 +109,7 @@
                             <label for="selectRoom">Phòng</label>
                             <select class="form-control" id="selectRoom" name="room">
                                 @foreach($rooms as $room)
-                                <option value="{{$room->id}}">{{$room->name_channel}} / {{$room->name}}</option>
+                                <option {{ $session->room_id == $room->id ? 'selected' : ''}} value="{{$room->id}}">{{$room->name_channel}} / {{$room->name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -119,14 +118,14 @@
                     <div class="row">
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="inputCost">Chi phí</label>
-                            <input type="number" class="form-control" id="inputCost" name="cost" placeholder="" value="0">
+                            <input type="number" class="form-control" id="inputCost" name="cost" placeholder="" value="{{$session->cost}}">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12 col-lg-6 mb-3">
                             <label for="inputStart">Bắt đầu</label>
-                            <input type="text" class="form-control @error('start') is-invalid @enderror" id="inputStart" name="start" placeholder="yyyy-mm-dd HH:MM" value="">
+                            <input type="text" class="form-control @error('start') is-invalid @enderror" id="inputStart" name="start" placeholder="yyyy-mm-dd HH:MM" value="{{$session->start}}">
                             @error("start")
                             <div class="invalid-feedback">
                                 {{$message}}
@@ -135,7 +134,7 @@
                         </div>
                         <div class="col-12 col-lg-6 mb-3">
                             <label for="inputEnd">Kết thúc</label>
-                            <input type="text" class="form-control @error('end') is-invalid @enderror" id="inputEnd" name="end" placeholder="yyyy-mm-dd HH:MM" value="">
+                            <input type="text" class="form-control @error('end') is-invalid @enderror" id="inputEnd" name="end" placeholder="yyyy-mm-dd HH:MM" value="{{$session->end}}">
                             @error("end")
                             <div class="invalid-feedback">
                                 {{$message}}
@@ -147,7 +146,7 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label for="textareaDescription">Mô tả</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" id="textareaDescription" name="description" placeholder="" rows="5"></textarea>
+                            <textarea class="form-control @error('description') is-invalid @enderror" id="textareaDescription" name="description" placeholder="" rows="5">{{$session->description}}</textarea>
                             @error("description")
                             <div class="invalid-feedback">
                                 {{$message}}
