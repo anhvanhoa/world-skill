@@ -20,10 +20,12 @@ class RoomController extends Controller
     {
         $request->validate([
             "name" => "required",
-            "capacity" => "required"
+            "capacity" => "required",
+            "channel" => "required"
         ], [
             "name.required" => "Tên không được để trống",
-            "capacity.required" => "Công xuất không được để trống"
+            "capacity.required" => "Công xuất không được để trống",
+            "channel.required" => "Vui lòng chọn phòng"
         ]);
         $room = new Rooms();
         $room->name = $request->name;

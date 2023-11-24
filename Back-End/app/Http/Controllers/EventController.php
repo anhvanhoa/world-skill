@@ -3,16 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use App\Models\Events;
+use App\Models\Registrations;
 use App\Models\Tickets;
+use App\Models\Sessions;
+use App\Models\Channels;
+use App\Models\Rooms;
 
 class EventController extends Controller
 {
     public function index()
     {
         $events = Events::where('organizer_id', session()->get('user')['id'])->get();
-        // $events = DB::table('events')->join('event_tickets', 'event_tickets.event_id', '=', 'events.id')->join('registrations', 'registrations.ticket_id', "=", "event_tickets.id")->select("events.name", "events.slug", "events.date", DB::raw("Count(registrations.ticket_id) as count_user"))->groupBy('events.id')->where('organizer_id', session()->get('user')['id'])->get();
+        foreach ($events as  $event) {
+            $tickets = Tickets::where('event_id', $event->id)->get();
+            $count = 0;
+            foreach ($tickets as $ticket) {
+                $registrations = Registrations::where('ticket_id', $ticket->id)->count();
+                $count += $registrations;
+            }
+            $event->count_user = $count;
+        }
         return view("events.index", compact('events'));
     }
     public function formCreate()
@@ -43,12 +56,25 @@ class EventController extends Controller
     }
     public function detailEvent(Request $request, $slug)
     {
-        // $event = DB::table("events")->join("event_tickets", "events.id", "=", "event_tickets.event_id")->select("*")->where("slug", $slug)->get();
         $event = Events::where("slug", $slug)->first();
         $tickets = Tickets::where("event_id", $event->id)->get();
-        $sessions = DB::table("sessions")->join("rooms", "sessions.room_id", "=", "rooms.id")->join("channels", "channels.id", "=", "rooms.channel_id")->select("*", "rooms.name as name_room", "sessions.id as session_id")->where("event_id", $event->id)->get();
-        $channels = DB::table("sessions")->join("rooms", "sessions.room_id", "=", "rooms.id")->join("channels", "channels.id", "=", "rooms.channel_id")->select("channels.name", DB::raw('COUNT(DISTINCT rooms.name) as count_room'), DB::raw('COUNT(sessions.id) as count_session'))->groupBy("channels.name")->where("event_id", $event->id)->get();
-        $rooms = DB::table("sessions")->join("rooms", "sessions.room_id", "=", "rooms.id")->join("channels", "channels.id", "=", "rooms.channel_id")->distinct()->select('rooms.name', "rooms.id", "rooms.capacity")->where("event_id", $event->id)->get();
+        $channels = Channels::where('event_id', $event->id)->get();
+        $rooms = Rooms::whereIn('channel_id', $channels->pluck('id'))->get();
+        $sessions = Sessions::whereIn('room_id', $rooms->pluck('id'))->get();
+        foreach ($sessions as $session) {
+            $room = Rooms::where('id', $session->room_id)->first();
+            $channel = Channels::where('id', $room->channel_id)->first();
+            $session->channel = $channel->name;
+            $session->room = $room->name;
+        }
+        foreach ($channels as $channel) {
+            // $count_room = Rooms::where("channel_id", $channel->id)->distinct('id')->count();
+            $rooms_channel = Rooms::where("channel_id", $channel->id)->get();
+            $count_room = count($rooms_channel);
+            $count_session = Sessions::whereIn('room_id', $rooms_channel->pluck('id'))->count();
+            $channel->count_session =  $count_session;
+            $channel->count_room =  $count_room;
+        }
         if (!$event) {
             return redirect()->route('event');
         }
@@ -68,8 +94,12 @@ class EventController extends Controller
     {
         $request->validate([
             "name" => "required",
-            "slug" => "required|unique:events|regex:/^[a-z0-9-\s]+$/",
             "date" => "required",
+            'slug' => [
+                'required',
+                'regex:/^[a-z0-9-\s]+$/',
+                Rule::unique('events')->ignore($id, 'id')
+            ],
         ], [
             "name.required" => "Tên không được để trống.",
             "slug.required" => "Slug không được để trống.",

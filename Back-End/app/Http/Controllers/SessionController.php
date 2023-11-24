@@ -5,17 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Events;
+use App\Models\Rooms;
 use App\Models\Sessions;
+use App\Models\Channels;
 
 class SessionController extends Controller
 {
     public function formCreate($slug)
     {
         $event = Events::where("slug", $slug)->first();
-        $rooms = DB::table("channels")->join("rooms", "channels.id", "=", "rooms.channel_id")->select("*", "channels.name as name_channel")->where("event_id", $event->id)->get();
-        if (!$event) {
-            return redirect()->route('event');
+        $channels = Channels::where('event_id', $event->id);
+        $rooms  = Rooms::whereIn('channel_id', $channels->pluck('id'))->get();
+        foreach ($rooms as $room) {
+            $channel = Channels::select('name')->where('id', $room->channel_id)->first();
+            $room->name_channel = $channel->name;
         }
+        if (!$event) return redirect()->route('event');
         return view("sessions.create", compact(["event", "rooms"]));
     }
 
@@ -25,6 +30,7 @@ class SessionController extends Controller
             "title" => "required",
             "speaker" => "required",
             "start" => "required",
+            "room" => "required",
             "end" => "required",
             "description" => "required",
         ], [
@@ -33,6 +39,7 @@ class SessionController extends Controller
             "start.required" => "Thời gian bắt đầu không được để trống",
             "end.required" => "Thời gian kết thúc không được để trống",
             "description.required" => "Mô tả không được để trống",
+            "room.required" => "Vui lòng tạo phòng",
         ]);
         $sessions = Sessions::where("room_id", $request->room)->get();
         foreach ($sessions as $session) {
@@ -56,7 +63,12 @@ class SessionController extends Controller
     public function updateForm(Request $request, $id, $slug)
     {
         $event = Events::where("slug", $slug)->first();
-        $rooms = DB::table("channels")->join("rooms", "channels.id", "=", "rooms.channel_id")->select("*", "channels.name as name_channel")->where("event_id", $event->id)->get();
+        $channels = Channels::where('event_id', $event->id);
+        $rooms  = Rooms::whereIn('channel_id', $channels->pluck('id'))->get();
+        foreach ($rooms as $room) {
+            $channel = Channels::select('name')->where('id', $room->channel_id)->first();
+            $room->name_channel = $channel->name;
+        }
         $session = Sessions::where("id", $id)->first();
         if (!$event) {
             return redirect()->route('event');

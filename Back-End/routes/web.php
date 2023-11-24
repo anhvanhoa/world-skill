@@ -8,6 +8,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ReportsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,3 +87,7 @@ Route::get('/room/{slug}/create', [RoomController::class, 'index'])
 Route::post('/room/create', [RoomController::class, 'create'])
     ->middleware('checkLogin')
     ->name('create-room');
+
+Route::get('/reports/{slug}', [ReportsController::class, 'index'])
+    ->middleware('checkLogin')
+    ->name('reports');

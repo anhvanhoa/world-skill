@@ -108,11 +108,16 @@
                     <div class="row">
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="selectRoom">Phòng</label>
-                            <select class="form-control" id="selectRoom" name="room">
+                            <select class="form-control @error('room') is-invalid @enderror" id=" selectRoom" name="room">
                                 @foreach($rooms as $room)
                                 <option value="{{$room->id}}">{{$room->name_channel}} / {{$room->name}}</option>
                                 @endforeach
                             </select>
+                            @error("room")
+                            <div class="invalid-feedback">
+                                {{$message}}
+                            </div>
+                            @enderror
                         </div>
                     </div>
 
@@ -126,7 +131,7 @@
                     <div class="row">
                         <div class="col-12 col-lg-6 mb-3">
                             <label for="inputStart">Bắt đầu</label>
-                            <input type="text" class="form-control @error('start') is-invalid @enderror" id="inputStart" name="start" placeholder="yyyy-mm-dd HH:MM" value="">
+                            <input type="datetime-local" class="form-control @error('start') is-invalid @enderror" id="inputStart" name="start" placeholder="yyyy-mm-dd HH:MM" value="">
                             @error("start")
                             <div class="invalid-feedback">
                                 {{$message}}
@@ -135,7 +140,7 @@
                         </div>
                         <div class="col-12 col-lg-6 mb-3">
                             <label for="inputEnd">Kết thúc</label>
-                            <input type="text" class="form-control @error('end') is-invalid @enderror" id="inputEnd" name="end" placeholder="yyyy-mm-dd HH:MM" value="">
+                            <input type="datetime-local" class="form-control @error('end') is-invalid @enderror" id="inputEnd" name="end" placeholder="yyyy-mm-dd HH:MM" value="">
                             @error("end")
                             <div class="invalid-feedback">
                                 {{$message}}

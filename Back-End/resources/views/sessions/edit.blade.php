@@ -142,7 +142,6 @@
                             @enderror
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label for="textareaDescription">Mô tả</label>
@@ -159,7 +158,6 @@
                     <button class="btn btn-primary" type="submit">Lưu phiên</button>
                     <a href="events/detail.html" class="btn btn-link">Bỏ qua</a>
                 </form>
-
             </main>
         </div>
     </div>

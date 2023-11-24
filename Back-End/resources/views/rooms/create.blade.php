@@ -83,11 +83,16 @@
                     <div class="row">
                         <div class="col-12 col-lg-4 mb-3">
                             <label for="selectChannel">Kênh</label>
-                            <select class="form-control" id="selectChannel" name="channel">
+                            <select class="form-control @error('channel') is-invalid @enderror" id="selectChannel" name="channel">
                                 @foreach($channels as $channel)
                                 <option value="{{$channel->id}}">{{$channel->name}}</option>
                                 @endforeach
                             </select>
+                            @error('channel')
+                            <div class="invalid-feedback">
+                                {{$message}}
+                            </div>
+                            @enderror
                         </div>
                     </div>
 

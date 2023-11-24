@@ -46,7 +46,7 @@
                         <span>Báo cáo</span>
                     </h6>
                     <ul class="nav flex-column mb-2">
-                        <li class="nav-item"><a class="nav-link" href="reports/index.html">Công suất phòng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('reports', $event->slug) }}">Công suất phòng</a></li>
                     </ul>
                 </div>
             </nav>
@@ -130,9 +130,9 @@
                             <tr>
                                 <td class="text-nowrap">{{date_format(date_create($session->start), "h:i")}} - {{date_format(date_create($session->end), "h:i")}}</td>
                                 <td>{{$session->type}}</td>
-                                <td><a href="{{route('edit-session', [$session->session_id, $event->slug])}}">{{$session->title}}</a></td>
+                                <td><a href="{{route('edit-session', [$session->id, $event->slug])}}">{{$session->title}}</a></td>
                                 <td class="text-nowrap">{{$session->speaker}}</td>
-                                <td class="text-nowrap">{{$session->name}} / {{$session->name_room}}</td>
+                                <td class="text-nowrap">{{$session->channel}} / {{$session->room}}</td>
                             </tr>
                             @endforeach
                         </tbody>

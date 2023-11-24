@@ -10,7 +10,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/:slug" element={<Event />} />
+                    <Route path="/organizer/:slugOrganizer/event/:slugEvent" element={<Event />} />
                     <Route path="/register-event/:event" element={<RegisterEvent />} />
                 </Routes>
             </BrowserRouter>

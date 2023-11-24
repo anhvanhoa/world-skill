@@ -46,7 +46,7 @@
                         <span>Báo cáo</span>
                     </h6>
                     <ul class="nav flex-column mb-2">
-                        <li class="nav-item"><a class="nav-link" href="reports/index.html">Công suất phòng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('reports', $event->slug) }}">Công suất phòng</a></li>
                     </ul>
                 </div>
             </nav>

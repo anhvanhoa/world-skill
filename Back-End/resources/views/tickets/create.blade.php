@@ -14,7 +14,6 @@
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <!-- Custom styles -->
     <link href="assets/css/custom.css" rel="stylesheet">
-    <script src="assets/js/main.js" defer></script>
 </head>
 
 <body>
@@ -47,11 +46,10 @@
                         <span>Báo cáo</span>
                     </h6>
                     <ul class="nav flex-column mb-2">
-                        <li class="nav-item"><a class="nav-link" href="reports/index.html">Công suất phòng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('reports', $event->slug) }}">Công suất phòng</a></li>
                     </ul>
                 </div>
             </nav>
-
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                 <div class="border-bottom mb-3 pt-3 pb-2">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">

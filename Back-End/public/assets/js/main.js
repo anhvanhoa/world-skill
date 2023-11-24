@@ -9,11 +9,13 @@ function handleValidity() {
         parentEle.classList.remove("d-none");
         nameValidity.innerText = "Số lượng vé tối đa được bán";
         input.placeholder = "";
+        input.type = "number";
         input.value = "";
     } else if (value == "date") {
         parentEle.classList.remove("d-none");
         nameValidity.innerText = "Vé có thể được bán đến";
         input.placeholder = "yyyy-mm-dd HH:MM";
+        input.type = "datetime-local";
         input.value = "";
     } else {
         parentEle.classList.add("d-none");

@@ -1,5 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 const Event = () => {
+    const params = useParams();
+    const [data, setData] = useState({ channels: [{ rooms: [{ sessions: [] }] }] });
+    const url = process.env.REACT_APP_REQUESTS;
+    useEffect(() => {
+        const events = fetch(`${url}/organizers/${params.slugOrganizer}/events/${params.slugEvent}`);
+        events.then((res) => res.json()).then((data) => setData(data));
+    }, [params.slugEvent, params.slugOrganizer, url]);
     return (
         <div className="max-w-default mx-auto">
             <header className="border-b border-gray-500 border-solid">
@@ -18,113 +26,44 @@ const Event = () => {
                     <thead>
                         <tr>
                             <th className="w-1/5"></th>
-                            <th className="w-1/12"></th>
-                            <th className="font-normal text-lg py-2 pl-2">09:00</th>
-                            <th className="font-normal text-lg py-2 pl-2">11:00</th>
-                            <th className="font-normal text-lg py-2 pl-2">13:00</th>
-                            <th className="font-normal text-lg py-2 pl-2">15:00</th>
+                            <th className="w-full flex">
+                                <p className="w-1/6 pr-2"></p>
+                                <div className="flex flex-1 justify-between">
+                                    <p className="font-normal text-lg py-2 pl-2">09:00</p>
+                                    <p className="font-normal text-lg py-2 pl-2">11:00</p>
+                                    <p className="font-normal text-lg py-2 pl-2">13:00</p>
+                                    <p className="font-normal text-lg py-2 pl-2">15:00</p>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="border-y border-slate-400 border-solid">
-                            <td>asda adfad adfasdf asdfasfa sfasfasf adsfasf asdfasf</td>
-                            <td className="border-x border-slate-400 border-solid">asda adfad adfasdf</td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-black border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-black border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                        </tr>
-                        <tr className="border-y border-slate-400 border-solid">
-                            <td>asda adfad adfasdf asdfasfa sfasfasf adsfasf asdfasf</td>
-                            <td className="border-x border-slate-400 border-solid">asda adfad adfasdf</td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-black border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-black border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                        </tr>
-                        <tr className="border-y border-slate-400 border-solid">
-                            <td>asda adfad adfasdf asdfasfa sfasfasf adsfasf asdfasf</td>
-                            <td className="border-x border-slate-400 border-solid">asda adfad adfasdf</td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-black border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                            <td className="px-2 py-4">
-                                <div className="p-2 border-[3px] border-black border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                                <div className="p-2 border-[3px] border-green-600 border-solid inline-block mr-4 mb-2">
-                                    This is meet
-                                </div>
-                            </td>
-                        </tr>
+                        {data.channels.map((channel, i) => (
+                            <tr key={i} className="border-y border-slate-400 border-solid">
+                                <td>{channel.name}</td>
+                                <td className="border-l border-slate-400 border-solid">
+                                    {channel.rooms.map((room, i) => (
+                                        <div key={i} className="flex items-center">
+                                            <p className="w-1/6 px-2">{room.name}</p>
+                                            <div className="border-l border-slate-400 border-solid pl-6 w-full py-3">
+                                                {room.sessions.map((session, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`${
+                                                            session.type === 'talk'
+                                                                ? 'border-green-600'
+                                                                : 'border-black'
+                                                        } p-2 border-[3px] border-solid inline-block mr-4 mb-2 flex-shrink-0`}
+                                                    >
+                                                        {session.title}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
