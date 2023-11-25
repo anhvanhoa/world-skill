@@ -18,8 +18,9 @@ const Home = () => {
             },
         })
             .then((res) => res.json())
-            .then((data) => console.log(data));
-        setUser(null);
+            .then((data) => {
+                setUser(null);
+            });
     };
     return (
         <div className="max-w-default mx-auto">

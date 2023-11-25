@@ -1,87 +1,74 @@
 import TypeTicket from '../components/TypeTicket';
 import OptionWorkshop from '../components/OptionWorkshop';
-import { useState } from 'react';
+import { contextUser } from '../store/ProviderUser';
+import { useEffect, useState, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const dataTypeTicket = [
-    {
-        id: 1,
-        name: 'Vé thường',
-        const: 210,
-        amount: 10,
-    },
-    {
-        id: 2,
-        name: 'Đặt sớm không có sẵn',
-        const: 110,
-        amount: 0,
-    },
-    {
-        id: 3,
-        name: 'VIP 50 vé có sẵn',
-        const: 300,
-        amount: 50,
-    },
-];
-const dataWorkshop = [
-    {
-        id: 1,
-        name: 'Designing skill path',
-        const: 30,
-    },
-    {
-        id: 2,
-        name: 'Education ecosyste',
-        const: 30,
-    },
-    {
-        id: 3,
-        name: 'Training innovat',
-        const: 30,
-    },
-];
 const RegisterEvent = () => {
-    const [checkTicket, setCheckTicket] = useState([]);
+    const { user } = useContext(contextUser);
+    const navigate = useNavigate();
+    const params = useParams();
+    const [data, setData] = useState({ channels: [{ rooms: [{ sessions: [] }] }], tickets: [] });
+    const url = process.env.REACT_APP_REQUESTS;
+    useEffect(() => {
+        const events = fetch(`${url}/organizers/${params.organizer}/events/${params.event}`);
+        events.then((res) => res.json()).then((data) => setData(data));
+    }, [params.event, params.organizer, url]);
+    const [checkTicket, setCheckTicket] = useState(0);
     const [checkWorkshop, setCheckWorkshop] = useState([]);
     const [bill, setBill] = useState({
         ticketPrice: 0,
         workshop: 0,
     });
     const changeCheckTicket = (id, price) => {
-        if (checkTicket.includes(id)) {
-            setCheckTicket(checkTicket.filter((elem) => elem !== id));
-            setBill((prev) => ({ ...prev, ticketPrice: prev.ticketPrice + price }));
-        } else {
-            setCheckTicket((prev) => [...prev, id]);
-            setBill((prev) => ({ ...prev, ticketPrice: prev.ticketPrice - price }));
-        }
+        setCheckTicket(id);
+        setBill((prev) => ({ ...prev, ticketPrice: -Number(price) }));
     };
     const changeCheckWorkshop = (id, price) => {
         if (checkWorkshop.includes(id)) {
             setCheckWorkshop(checkWorkshop.filter((elem) => elem !== id));
-            setBill((prev) => ({ ...prev, workshop: prev.workshop + price }));
+            setBill((prev) => ({ ...prev, workshop: prev.workshop + Number(price) }));
         } else {
             setCheckWorkshop((prev) => [...prev, id]);
             setBill((prev) => ({ ...prev, workshop: prev.workshop - price }));
         }
+    };
+    const handleBuy = () => {
+        if (!user?.token) {
+            navigate('/login');
+            return;
+        }
+        fetch(`${url}/organizers/${params.organizer}/events/${params.event}/registration?token=${user.token}`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                ticket_id: checkTicket,
+                session_ids: checkWorkshop,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => console.log(data));
     };
     return (
         <div>
             <div className="max-w-5xl mx-auto">
                 <header>
                     <div className="flex items-center justify-between p-4">
-                        <h1 className="text-3xl font-semibold">React conf 2019</h1>
+                        <h1 className="text-3xl font-semibold">{data.name}</h1>
                     </div>
                 </header>
                 <div className="p-4">
                     <div className="grid grid-cols-3">
-                        {dataTypeTicket.map((item) => (
+                        {data.tickets.map((item) => (
                             <TypeTicket
                                 key={item.id}
-                                amount={item.amount}
-                                price={item.const}
+                                available={item.available}
+                                price={item.cost}
                                 name={item.name}
-                                checked={checkTicket.includes(item.id)}
-                                onChange={() => changeCheckTicket(item.id, item.const)}
+                                checked={item.id === checkTicket}
+                                onChange={() => changeCheckTicket(item.id, item.cost)}
                             />
                         ))}
                     </div>
@@ -89,15 +76,27 @@ const RegisterEvent = () => {
                         <div>
                             <h3 className="text-xl">Lựa chọn thêm cho các workshop bạn muốn đặt:</h3>
                             <div>
-                                {dataWorkshop.map((element) => (
-                                    <OptionWorkshop
-                                        key={element.id}
-                                        checked={checkWorkshop.includes(element.id)}
-                                        onChange={() => changeCheckWorkshop(element.id, element.const)}
-                                        id={element.id}
-                                        name={element.name}
-                                    />
-                                ))}
+                                <div>
+                                    {data.channels.map((channel, index) => (
+                                        <div key={index}>
+                                            {channel.rooms.map((room, index) => (
+                                                <div key={index}>
+                                                    {room.sessions.map((session) => (
+                                                        <OptionWorkshop
+                                                            key={session.id}
+                                                            checked={checkWorkshop.includes(session.id)}
+                                                            onChange={() =>
+                                                                changeCheckWorkshop(session.id, session.cost)
+                                                            }
+                                                            id={session.id}
+                                                            name={session.title}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col items-end">
@@ -116,8 +115,9 @@ const RegisterEvent = () => {
                                 </div>
                                 <div className="flex justify-end">
                                     <button
+                                        onClick={handleBuy}
                                         className={`text-white rounded-md py-1 px-6 mt-8 ${
-                                            checkTicket.length > 0 ? 'bg-sky-500' : 'bg-sky-500/20 pointer-events-none'
+                                            checkTicket !== 0 ? 'bg-sky-500' : 'bg-sky-500/20 pointer-events-none'
                                         }`}
                                     >
                                         Mua

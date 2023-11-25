@@ -14,7 +14,7 @@ const Event = () => {
                 <div className="flex items-center justify-between p-4">
                     <h1 className="text-3xl font-semibold">React conf 2019</h1>
                     <Link
-                        to="/register-event/react-conf-2019"
+                        to={`/register-event/${params.slugOrganizer}/${params.slugEvent}`}
                         className="bg-green-600 px-4 py-1 rounded-md text-white text-lg"
                     >
                         Đăng ký sự kiện này

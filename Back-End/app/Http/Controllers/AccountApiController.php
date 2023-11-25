@@ -32,8 +32,9 @@ class AccountApiController extends Controller
     public function logout(Request $request)
     {
         $token = $request->query('token');
-        $user = Attendees::where('login_token', $token);
+        $user = Attendees::where('login_token', $token)->first();
         $user->login_token = '';
+        $user->save();
         if ($user) return response()->json(['message' => '"Đăng xuất thành công'], 200);
         else return response()->json(['message' => 'Token không hợp lệ'], 200);
     }

@@ -11,7 +11,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/organizer/:slugOrganizer/event/:slugEvent" element={<Event />} />
-                    <Route path="/register-event/:event" element={<RegisterEvent />} />
+                    <Route path="/register-event/:organizer/:event" element={<RegisterEvent />} />
                 </Routes>
             </BrowserRouter>
         </div>

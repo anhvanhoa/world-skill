@@ -27,10 +27,21 @@ class EventApiController extends Controller
     {
         $organizer = Organizers::where('slug', $organizerSlug)->first();
         if (!$organizer) return response()->json(["message" => "Không tìm thấy nhà tổ chức"], 404);
-        $event = Events::where('organizer_id', $organizer->id)->where('slug', $eventSlug)->first();
+        $event = Events::where('organizer_id', $organizer->id)->where('slug', $eventSlug)->select('id', 'name', 'slug', 'date')->first();
         if (!$event) return response()->json(["message" => "Không tìm sự kiện"], 404);
         $channels = Channels::where('event_id', $event->id)->get();
         $tickets = Tickets::where('event_id', $event->id)->get();
+        foreach ($tickets as $ticket) {
+            $ticket->available = true;
+            $special_validity = json_decode($ticket->special_validity);
+            if (!$special_validity) $ticket->description = $special_validity;
+            else {
+                if ($special_validity->type == 'date')
+                    $ticket->description = "Sẵn có đến ngày $special_validity->date";
+                // if ($special_validity->type == 'amount')
+                // $ticket->available = true;
+            }
+        }
         $event->tickets = $tickets;
         foreach ($channels as $channel) {
             $rooms = Rooms::where('channel_id', $channel->id)->get();
@@ -49,19 +60,9 @@ class EventApiController extends Controller
         $token = $request->query('token');
         $attendee = Attendees::where('login_token', $token)->first();
         if (!$attendee) return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
-        // $organizer = Organizers::where('slug', $organizerSlug)->first();
-        // $check = true;
-        // if (!$organizer) {
-        //     $check = false;
-        // } else {
-        //     $event = Events::where('organizer_id', $organizer->id)->where('slug', $eventSlug)->first();
-        //     if (!$event) {
-        //         $check = false;
-        //     } else {
-        //         $ticket = Tickets::where('event_id', $event->id)->find($request->ticket_id);
-        //     }
-        // }
-        $ticket = Tickets::find($request->ticket_id);
+        $ticket = Organizers::where('slug', $organizerSlug)->first();
+        if ($ticket) $ticket = Events::where('organizer_id', $ticket->id)->where('slug', $eventSlug)->first();
+        if ($ticket) $ticket = Tickets::where('event_id', $ticket->id)->find($request->ticket_id);
         if (!$ticket) return response()->json(['message' => 'Vé không sẵn có'], 401);
         $isRegistration = Registrations::where('attendee_id', $attendee->id)->where('ticket_id', $ticket->id)->first();
         if ($isRegistration) return response()->json(['message' => 'Người dùng đã đăng ký'], 401);
@@ -82,5 +83,30 @@ class EventApiController extends Controller
 
     public function getRegistration(Request $request)
     {
+        $token = $request->query('token');
+        $attendee = Attendees::where('login_token', $token)->first();
+        if (!$attendee) return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
+        $registrations = Registrations::where('attendee_id', $attendee->id)->get();
+        $tickets = Tickets::whereIn('id', $registrations->pluck('ticket_id'))->get();
+        $events = Events::whereIn('id', $tickets->pluck('event_id'))->get();
+        $res = [
+            'registrations' => []
+        ];
+        foreach ($events as $event) {
+            $registrations = [];
+            $organizer = Organizers::where('id', $event->id)->select('id', 'name', 'slug')->first();
+            $event->organizer = $organizer;
+            $registrations['event'] = $event;
+            $channels = Channels::where('event_id', $event->id);
+            $rooms = Rooms::whereIn('channel_id', $channels->pluck('id'))->get();
+            $sessions = Sessions::whereIn('room_id', $rooms->pluck('id'))->select('id')->get();
+            $session_ids = [];
+            foreach ($sessions as $session) {
+                array_push($session_ids,  $session->id);
+            }
+            $registrations['session_ids'] = $session_ids;
+            array_push($res['registrations'],  $registrations);
+        }
+        return response()->json($res, 200);
     }
 }
