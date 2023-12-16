@@ -9,7 +9,7 @@
 
     <title>Event Backend</title>
 
-    <base href="../">
+    <base href="{{asset('')}}">
     <!-- Bootstrap core CSS -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <!-- Custom styles -->
